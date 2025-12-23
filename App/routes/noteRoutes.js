@@ -12,7 +12,7 @@ function hello(){
     console.log("hello");
 }
 
-noteRouter.post("/",  hello);
+noteRouter.get("/",  hello);
 noteRouter.post("/insert", noteInsert);
 noteRouter.get("/getNotes", getNotes);
 noteRouter.delete("/deleteNote/:id", deleteNote);
