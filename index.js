@@ -1,5 +1,5 @@
 import express from "express";
-const noteRouter = require("./routes/noteRoutes");
+import noteRouter from "./routes/noteRoutes.js";
 let app = express();
 app.use(express.json());
 require("dotenv").config();

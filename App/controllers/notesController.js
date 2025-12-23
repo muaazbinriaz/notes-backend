@@ -1,4 +1,4 @@
-const Note = require("../models/notes.model");
+import Note from "../models/notes.model.js";
 
 let noteInsert = async (req, res) => {
   try {

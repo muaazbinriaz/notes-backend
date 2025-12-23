@@ -1,4 +1,4 @@
-let mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 let noteSchema = new mongoose.Schema({
   title: {
