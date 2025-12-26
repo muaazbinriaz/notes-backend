@@ -1,4 +1,5 @@
 let express = require("express");
+let noteRouter = express.Router();
 
 const {
   noteInsert,
@@ -7,13 +8,11 @@ const {
   updateNote,
 } = require("../controllers/notesController");
 
-let noteRouter = express.Router();
-
-function hello(){
-    console.log("hello");
+function hello() {
+  console.log("hello");
 }
 
-noteRouter.get("/",  hello);
+noteRouter.get("/", hello);
 noteRouter.post("/insert", noteInsert);
 noteRouter.get("/getNotes", getNotes);
 noteRouter.delete("/deleteNote/:id", deleteNote);

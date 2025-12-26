@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +17,7 @@
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.2.1",
+    "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
     "mongoos": "^0.0.1-security",
     "mongoose": "^9.0.2"
