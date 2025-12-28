@@ -1,5 +1,4 @@
 require("dotenv").config();
-
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
@@ -8,6 +7,7 @@ const cors = require("cors");
 const noteRouter = require("./App/routes/noteRoutes");
 const authRouter = require("./App/routes/authRoutes");
 const productRouter = require("./App/routes/productRouter");
+
 require("./App/models/db");
 
 const allowedOrigins = [
@@ -19,9 +19,7 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+      if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(null, false);
     },
     credentials: true,
