@@ -14,7 +14,13 @@ require("./App/models/db");
 
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: "https://notes-frontend-rouge.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 app.use("/api/website/notes", noteRouter);
 app.use("/api/website/auth", authRouter);
