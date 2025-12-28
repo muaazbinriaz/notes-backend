@@ -14,6 +14,7 @@ const allowedOrigins = [
   "https://notes-frontend-rouge.vercel.app",
   "http://localhost:5173",
 ];
+console.log("Redeploy test: backend clean");
 
 app.use(
   cors({
