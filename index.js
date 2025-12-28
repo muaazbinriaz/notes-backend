@@ -28,6 +28,10 @@ app.get("/health-check", (req, res) => {
   res.status(200).send({ message: "Server is running" });
 });
 
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Backend is alive" });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT} `);
 });
