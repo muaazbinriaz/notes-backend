@@ -9,10 +9,6 @@ const {
   updateNote,
 } = require("../controllers/notesController");
 
-noteRouter.get("/", (req, res) => {
-  res.send("Notes API root");
-});
-
 noteRouter.post("/insert", ensureAuthenticated, noteInsert);
 noteRouter.get("/getNotes", ensureAuthenticated, getNotes);
 noteRouter.delete("/deleteNote/:id", ensureAuthenticated, deleteNote);
