@@ -1,5 +1,6 @@
-let express = require("express");
-let noteRouter = express.Router();
+const express = require("express");
+const noteRouter = express.Router();
+const ensureAuthenticated = require("../middlewares/auth");
 
 const {
   noteInsert,
@@ -11,9 +12,10 @@ const {
 noteRouter.get("/", (req, res) => {
   res.send("Notes API root");
 });
-noteRouter.post("/insert", noteInsert);
-noteRouter.get("/getNotes", getNotes);
-noteRouter.delete("/deleteNote/:id", deleteNote);
-noteRouter.put("/updateNote/:id", updateNote);
+
+noteRouter.post("/insert", ensureAuthenticated, noteInsert);
+noteRouter.get("/getNotes", ensureAuthenticated, getNotes);
+noteRouter.delete("/deleteNote/:id", ensureAuthenticated, deleteNote);
+noteRouter.put("/updateNote/:id", ensureAuthenticated, updateNote);
 
 module.exports = noteRouter;

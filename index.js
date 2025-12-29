@@ -10,22 +10,7 @@ const productRouter = require("./App/routes/productRouter");
 
 require("./App/models/db");
 
-const allowedOrigins = [
-  "https://notes-frontend-rouge.vercel.app",
-  "http://localhost:5173",
-];
-console.log("Redeploy test: backend clean");
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(null, false);
-    },
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 app.use(bodyParser.json());

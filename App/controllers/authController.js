@@ -12,10 +12,24 @@ const signup = async (req, res) => {
         success: false,
       });
     }
-    const userModel = new UserModel({ name, email, password });
-    userModel.password = await bcrypt.hash(password, 10);
-    await userModel.save();
-    res.status(201).json({ message: "signup successfully", success: true });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new UserModel({ name, email, password: hashedPassword });
+    await newUser.save();
+
+    const jwtToken = jwt.sign(
+      { email: newUser.email, _id: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    res.status(201).json({
+      message: "Signup successful",
+      success: true,
+      token: jwtToken,
+      name: newUser.name,
+      email: newUser.email,
+    });
   } catch (err) {
     res.status(500).json({ message: "Internal server error", success: false });
   }
