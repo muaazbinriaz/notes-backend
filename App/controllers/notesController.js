@@ -1,6 +1,11 @@
 const Note = require("../models/notes.model");
 
 const noteInsert = async (req, res) => {
+  if (req.body.title.length > 100) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Title exceeds 100 characters" });
+  }
   try {
     const { title, body } = req.body;
     const note = new Note({ title, body, userId: req.user._id });
@@ -14,9 +19,25 @@ const noteInsert = async (req, res) => {
 };
 
 const getNotes = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
   try {
-    const notes = await Note.find({ userId: req.user._id });
-    res.json({ success: true, data: notes });
+    const notes = await Note.find({ userId: req.user._id })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    const totalNotes = await Note.countDocuments({ userId: req.user._id });
+    const totalPages = Math.ceil(totalNotes / limit);
+
+    res.json({
+      success: true,
+      data: notes,
+      totalNotes,
+      totalPages,
+      currentPage: page,
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -41,6 +62,11 @@ const deleteNote = async (req, res) => {
 };
 
 const updateNote = async (req, res) => {
+  if (req.body.title.length > 100) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Title exceeds 100 characters" });
+  }
   try {
     const { id } = req.params;
     const { title, body } = req.body;
