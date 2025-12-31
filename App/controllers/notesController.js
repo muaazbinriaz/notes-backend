@@ -43,6 +43,22 @@ const getNotes = async (req, res) => {
   }
 };
 
+const getNoteById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const note = await Note.findOne({ _id: id, userId: req.user._id });
+    if (!note) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Note not found" });
+    } else {
+      res.json({ success: true, data: note });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 const deleteNote = async (req, res) => {
   try {
     const { id } = req.params;
@@ -62,11 +78,6 @@ const deleteNote = async (req, res) => {
 };
 
 const updateNote = async (req, res) => {
-  if (req.body.title.length > 100) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Title exceeds 100 characters" });
-  }
   try {
     const { id } = req.params;
     const { title, body } = req.body;
@@ -86,4 +97,4 @@ const updateNote = async (req, res) => {
   }
 };
 
-module.exports = { noteInsert, getNotes, deleteNote, updateNote };
+module.exports = { noteInsert, getNotes, getNoteById, deleteNote, updateNote };
