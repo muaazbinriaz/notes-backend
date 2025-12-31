@@ -11,8 +11,6 @@ const signupValidation = (req, res, next) => {
     password: Joi.string().min(4).max(100).required(),
   });
 
-  // const validationResult = schema.validate(req.body);
-  // const error = validationResult.error;
   const { error } = schema.validate(req.body);
 
   if (error) {
