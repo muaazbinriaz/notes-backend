@@ -14,6 +14,12 @@ let noteSchema = new mongoose.Schema({
     ref: "users",
     required: true,
   },
+  status: {
+    type: String,
+    enum: ["task", "completed"],
+    default: "task",
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

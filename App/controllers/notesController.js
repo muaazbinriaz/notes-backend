@@ -8,7 +8,12 @@ const noteInsert = async (req, res) => {
   }
   try {
     const { title, body } = req.body;
-    const note = new Note({ title, body, userId: req.user._id });
+    const note = new Note({
+      title,
+      body,
+      userId: req.user._id,
+      status: "task",
+    });
     const savedNote = await note.save();
 
     res
@@ -20,24 +25,12 @@ const noteInsert = async (req, res) => {
 };
 
 const getNotes = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-
   try {
-    const notes = await Note.find({ userId: req.user._id })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 });
-
-    const totalNotes = await Note.countDocuments({ userId: req.user._id });
-    const totalPages = Math.ceil(totalNotes / limit);
+    const notes = await Note.find({ userId: req.user._id });
 
     res.json({
       success: true,
       data: notes,
-      totalNotes,
-      totalPages,
-      currentPage: page,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -98,4 +91,40 @@ const updateNote = async (req, res) => {
   }
 };
 
-module.exports = { noteInsert, getNotes, getNoteById, deleteNote, updateNote };
+const updateNoteStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!["task", "completed"].includes(status)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status value" });
+    }
+    const updatedTask = await Note.findOneAndUpdate(
+      {
+        _id: id,
+        userId: req.user._id,
+      },
+      { status, updatedAt: Date.now() },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Note not found" });
+    }
+    res.json({ success: true, message: "Status updated", data: updatedTask });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = {
+  noteInsert,
+  getNotes,
+  getNoteById,
+  deleteNote,
+  updateNote,
+  updateNoteStatus,
+};
