@@ -11,6 +11,10 @@ const listSchema = new mongoose.Schema(
       ref: "users",
       required: true,
     },
+    position: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true },
 );
