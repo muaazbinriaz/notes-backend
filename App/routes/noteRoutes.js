@@ -13,7 +13,12 @@ const {
 } = require("../controllers/notesController");
 const upload = require("../middlewares/upload");
 
-noteRouter.post("/insert", ensureAuthenticated, noteInsert);
+noteRouter.post(
+  "/insert",
+  ensureAuthenticated,
+  upload.single("picture"),
+  noteInsert,
+);
 noteRouter.get("/getNotes", ensureAuthenticated, getNotes);
 noteRouter.get("/getNoteById/:id", ensureAuthenticated, getNoteById);
 noteRouter.delete("/deleteNote/:id", ensureAuthenticated, deleteNote);

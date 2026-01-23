@@ -8,14 +8,18 @@ const noteInsert = async (req, res) => {
         .status(400)
         .json({ success: false, message: "listId is required" });
     }
+
     const count = await Note.countDocuments({ listId, userId: req.user._id });
+
     const note = new Note({
       title,
       body,
       userId: req.user._id,
       listId,
       position: count,
+      picture: req.file ? req.file.path : "",
     });
+
     const savedNote = await note.save();
     res
       .status(201)

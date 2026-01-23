@@ -15,6 +15,11 @@ const listSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    boardId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "boards",
+      required: true,
+    },
   },
   { timestamps: true },
 );

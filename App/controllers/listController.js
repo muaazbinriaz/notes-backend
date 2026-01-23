@@ -3,18 +3,33 @@ const Note = require("../models/notes.model");
 
 const createList = async (req, res) => {
   try {
-    const { position, title } = req.body;
-    const list = new List({ title, userId: req.user._id, position });
+    const { position, title, boardId } = req.body;
+    if (!title || !boardId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Title and boardId are required" });
+    }
+    const list = new List({
+      title,
+      userId: req.user._id,
+      position,
+      boardId,
+    });
     const savedList = await list.save();
     res.status(201).json({ success: true, data: savedList });
   } catch (err) {
+    console.error("Create list error:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const getLists = async (req, res) => {
   try {
-    const lists = await List.find({ userId: req.user._id }).sort({
+    const { boardId } = req.query;
+    if (!boardId) {
+      return res.status(400).json({ message: "boardId is required" });
+    }
+    const lists = await List.find({ userId: req.user._id, boardId }).sort({
       position: 1,
     });
     res.json({ success: true, data: lists });

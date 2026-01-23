@@ -18,13 +18,6 @@ const signup = async (req, res) => {
     const newUser = new UserModel({ name, email, password: hashedPassword });
     await newUser.save();
 
-    const defaultTitles = ["Task", "Completed"];
-    await Promise.all(
-      defaultTitles.map((title, idx) =>
-        new listModel({ title, userId: newUser._id, position: idx }).save(),
-      ),
-    );
-
     const token = jwt.sign(
       { email: newUser.email, _id: newUser._id },
       process.env.JWT_SECRET,
