@@ -11,7 +11,12 @@ const boardRouter = require("./App/routes/boardRoutes");
 
 require("./App/config/db");
 
-app.use(cors({ origin: "*" }));
+// app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: "https://notes-frontend-rouge.vercel.app/",
+  }),
+);
 
 app.use(express.json());
 app.use(bodyParser.json());
