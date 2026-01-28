@@ -7,7 +7,6 @@ let noteSchema = new mongoose.Schema({
   },
   body: {
     type: String,
-    required: true,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,

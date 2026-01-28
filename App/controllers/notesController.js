@@ -4,7 +4,7 @@ const Board = require("../models/board.model");
 
 const noteInsert = async (req, res) => {
   try {
-    const { title, body, listId } = req.body;
+    const { title, listId } = req.body;
     if (!listId) {
       return res
         .status(400)
@@ -31,7 +31,6 @@ const noteInsert = async (req, res) => {
     const count = await Note.countDocuments({ listId });
     const note = new Note({
       title,
-      body,
       listId,
       position: count,
       picture: req.file ? req.file.path : "",
@@ -126,7 +125,7 @@ const deleteNote = async (req, res) => {
 const updateNote = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, body } = req.body;
+    const { title, body, picture } = req.body;
     const note = await Note.findById(id);
     if (!note)
       return res
@@ -142,8 +141,9 @@ const updateNote = async (req, res) => {
         .status(403)
         .json({ success: false, message: "Not authorized to update note" });
     }
-    note.title = title;
-    note.body = body;
+    if (title !== undefined) note.title = title;
+    if (body !== undefined) note.body = body;
+    if (picture !== undefined) note.picture = picture;
     note.updatedAt = Date.now();
     const updatedNote = await note.save();
     res.json({ success: true, message: "Note updated", data: updatedNote });
