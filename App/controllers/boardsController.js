@@ -67,17 +67,14 @@ const inviteBoardMember = async (req, res) => {
     const { email } = req.body;
     const boardId = req.params.id;
     const board = await boardModel.findById(boardId);
-    if (!board) {
-      return res.status(404).json({ message: "Board not found" });
-    }
+    if (!board) return res.status(404).json({ message: "Board not found" });
     const isAuthorized =
       board.ownerId.toString() === req.user._id.toString() ||
       board.members.includes(req.user._id);
-
-    if (!isAuthorized) {
+    if (!isAuthorized)
       return res.status(403).json({ message: "Not authorized" });
-    }
-    await sendBoardInvite(email, board.title, req.user.name, boardId);
+    const inviterName = req.user?.name?.trim() || "A teammate";
+    await sendBoardInvite(email, board.title, inviterName, boardId);
     res.status(200).json({ message: "Invitation sent successfully" });
   } catch (err) {
     console.error("Invite error:", err);
