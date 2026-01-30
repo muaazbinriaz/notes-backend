@@ -28,7 +28,7 @@
     "nodemailer": "^7.0.13",
     "resend": "^6.8.0",
     "serverless-http": "^4.0.0",
-    "uuid": "^13.0.0"
+    "uuid": "^8.3.2"
   },
   "repository": {
     "type": "git",
