@@ -1,6 +1,6 @@
-import { v4 as uuidv4 } from "uuid";
-import Invite from "../models/invite.model.js";
-exports.createInvite = async (req, res) => {
+const { v4: uuidv4 } = require("uuid");
+const Invite = require("../models/invite.model");
+const createInvite = async (req, res) => {
   try {
     const { boardId, email } = req.body;
     const inviteId = uuidv4();
@@ -17,3 +17,5 @@ exports.createInvite = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+module.exports = createInvite;
