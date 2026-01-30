@@ -7,6 +7,7 @@ const noteRouter = require("./App/routes/noteRoutes");
 const authRouter = require("./App/routes/authRoutes");
 const listRouter = require("./App/routes/listRoutes");
 const boardRouter = require("./App/routes/boardRoutes");
+const inviteRouter = require("./App/routes/inviteRoutes");
 
 require("./App/config/db");
 
@@ -18,6 +19,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/notes", noteRouter);
 app.use("/api/lists", listRouter);
 app.use("/api/boards", boardRouter);
+app.use("/api/invites", inviteRouter);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Backend is alive" });

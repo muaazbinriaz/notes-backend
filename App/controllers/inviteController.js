@@ -18,4 +18,4 @@ const createInvite = async (req, res) => {
   }
 };
 
-module.exports = createInvite;
+module.exports = { createInvite };
