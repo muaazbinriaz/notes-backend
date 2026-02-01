@@ -16,16 +16,53 @@ const signup = async (req, res) => {
       });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new UserModel({ name, email, password: hashedPassword });
+    const newUser = new UserModel({
+      name,
+      email,
+      password: hashedPassword,
+    });
     await newUser.save();
     if (inviteId) {
-      const invite = await inviteModel.findOne({ inviteId, used: false });
-      if (invite) {
-        await boardModel.findByIdAndUpdate(invite.boardId, {
-          $push: { members: newUser._id },
+      try {
+        const invite = await inviteModel.findOne({
+          inviteId,
+          used: false,
         });
-        invite.used = true;
-        await invite.save();
+        if (invite) {
+          if (invite.email.toLowerCase() !== email.toLowerCase()) {
+            console.error("Invite email mismatch:", {
+              inviteEmail: invite.email,
+              signupEmail: email,
+            });
+          } else {
+            const board = await boardModel.findById(invite.boardId);
+            if (board) {
+              const isAlreadyMember =
+                board.ownerId.toString() === newUser._id.toString() ||
+                board.members.some(
+                  (m) => m.toString() === newUser._id.toString(),
+                );
+              if (!isAlreadyMember) {
+                board.members.push(newUser._id);
+                await board.save();
+                invite.used = true;
+                await invite.save();
+                console.log("User added to board successfully:", {
+                  userId: newUser._id,
+                  boardId: board._id,
+                });
+              } else {
+                console.log("User already a member, skipping");
+              }
+            } else {
+              console.error("Board not found for invite:", invite.boardId);
+            }
+          }
+        } else {
+          console.log("Invite not found or already used:", inviteId);
+        }
+      } catch (inviteError) {
+        console.error("Error processing invite during signup:", inviteError);
       }
     }
     const token = jwt.sign(
@@ -42,84 +79,15 @@ const signup = async (req, res) => {
       email: newUser.email,
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("Signup error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: err.message,
+    });
   }
 };
 
-// const signup = async (req, res) => {
-//   try {
-//     const { name, email, password, inviteId } = req.body;
-
-//     // Check if user exists
-//     const existingUser = await UserModel.findOne({ email });
-//     if (existingUser) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "User already exists, please login",
-//       });
-//     }
-
-//     // Create new user
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     const newUser = new UserModel({ name, email, password: hashedPassword });
-//     await newUser.save();
-
-//     // Handle invite if provided
-//     if (inviteId) {
-//       try {
-//         const invite = await inviteModel.findOne({
-//           inviteId,
-//           used: false,
-//           email: email, // Ensure invite is for this email
-//         });
-
-//         if (invite) {
-//           const board = await boardModel.findById(invite.boardId);
-
-//           if (board) {
-//             // Check if user is not already a member
-//             const isAlreadyMember =
-//               board.ownerId.toString() === newUser._id.toString() ||
-//               board.members.some(
-//                 (m) => m.toString() === newUser._id.toString(),
-//               );
-
-//             if (!isAlreadyMember) {
-//               board.members.push(newUser._id);
-//               await board.save();
-//             }
-
-//             // Mark invite as used
-//             invite.used = true;
-//             await invite.save();
-//           }
-//         }
-//       } catch (inviteError) {
-//         console.error("Error processing invite during signup:", inviteError);
-//         // Don't fail signup if invite processing fails
-//       }
-//     }
-
-//     // Generate token
-//     const token = jwt.sign(
-//       { email: newUser.email, _id: newUser._id },
-//       process.env.JWT_SECRET,
-//       { expiresIn: "7d" },
-//     );
-
-//     res.status(201).json({
-//       success: true,
-//       message: "Signup successful",
-//       token,
-//       _id: newUser._id,
-//       name: newUser.name,
-//       email: newUser.email,
-//     });
-//   } catch (err) {
-//     console.error("Signup error:", err);
-//     res.status(500).json({ success: false, message: "Internal server error" });
-//   }
-// };
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
