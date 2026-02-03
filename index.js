@@ -43,22 +43,16 @@ const listRouter = require("./App/routes/listRoutes");
 const boardRouter = require("./App/routes/boardRoutes");
 const inviteRouter = require("./App/routes/inviteRoutes");
 
-const connectDB = require("./App/config/db"); // ✅ Changed: import as function
+const connectDB = require("./App/config/db"); // ✅ Changed this line
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(bodyParser.json());
 
-// ✅ NEW: Middleware to ensure DB connection on each serverless request
+// ✅ Added these 3 lines
 app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (error) {
-    console.error("DB middleware error:", error);
-    // Continue to next middleware - individual routes will handle DB errors
-    next();
-  }
+  await connectDB();
+  next();
 });
 
 app.use("/api/auth", authRouter);
@@ -72,9 +66,5 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
-// app.listen(PORT, () => {
-//   console.log(`Server is running on port ${PORT}`);
-// });
 
 module.exports = app;
