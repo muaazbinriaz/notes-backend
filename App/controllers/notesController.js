@@ -31,11 +31,15 @@ const noteInsert = async (req, res) => {
     const count = await Note.countDocuments({ listId });
     const note = new Note({
       title,
-      listId,
+      listId: listId.toString(),
       position: count,
       picture: req.file ? req.file.path : "",
     });
     const savedNote = await note.save();
+    req.app.io.to(board._id.toString()).emit("note-created", {
+      ...savedNote.toObject(),
+      listId: list._id.toString(),
+    });
     res
       .status(201)
       .json({ success: true, message: "Note added", data: savedNote });
@@ -116,6 +120,10 @@ const deleteNote = async (req, res) => {
         .json({ success: false, message: "Not authorized to delete note" });
     }
     await note.deleteOne();
+    req.app.io.to(board._id.toString()).emit("note-deleted", {
+      _id: note._id.toString(),
+      listId: note.listId.toString(),
+    });
     res.json({ success: true, message: "Note deleted", data: note });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -146,6 +154,10 @@ const updateNote = async (req, res) => {
     if (picture !== undefined) note.picture = picture;
     note.updatedAt = Date.now();
     const updatedNote = await note.save();
+    req.app.io.to(board._id.toString()).emit("note-updated", {
+      ...updatedNote.toObject(),
+      listId: list._id.toString(),
+    });
     res.json({ success: true, message: "Note updated", data: updatedNote });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -174,6 +186,10 @@ const uploadImage = async (req, res) => {
     note.picture = req.file.path;
     note.updatedAt = Date.now();
     const updatedNote = await note.save();
+    req.app.io.to(board._id.toString()).emit("note-updated", {
+      ...updatedNote.toObject(),
+      listId: list._id.toString(),
+    });
     res.json({ success: true, message: "Image uploaded", data: updatedNote });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -212,6 +228,11 @@ const moveNote = async (req, res) => {
     note.position = position;
     note.updatedAt = Date.now();
     await note.save();
+    req.app.io.to(board._id.toString()).emit("note-moved", {
+      ...note.toObject(),
+      oldListId: list._id.toString(),
+      listId: note.listId.toString(),
+    });
     res.json({ success: true, message: "Note moved", data: note });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

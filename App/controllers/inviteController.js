@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const boardModel = require("../models/board.model");
 const inviteModel = require("../models/invite.model");
+const UserModel = require("../models/user.model");
 const createInvite = async (req, res) => {
   try {
     const { boardId, email } = req.body;
@@ -73,6 +74,11 @@ const acceptInvite = async (req, res) => {
     await board.save();
     invite.used = true;
     await invite.save();
+    const newMember = await UserModel.findById(userId).select("name email");
+    req.app.io.to(invite.boardId.toString()).emit("member-added", {
+      boardId: invite.boardId,
+      member: newMember,
+    });
     res.json({
       success: true,
       message: `Successfully joined "${board.title}"!`,

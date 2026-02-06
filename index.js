@@ -1,7 +1,8 @@
 require("dotenv").config();
+const { Server } = require("socket.io");
+const http = require("http");
 const express = require("express");
 const app = express();
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const noteRouter = require("./App/routes/noteRoutes");
 const authRouter = require("./App/routes/authRoutes");
@@ -10,23 +11,23 @@ const boardRouter = require("./App/routes/boardRoutes");
 const inviteRouter = require("./App/routes/inviteRoutes");
 
 const connectDB = require("./App/config/db");
-
 app.use(cors({ origin: "*" }));
-app.use(express.json());
-app.use(bodyParser.json());
 
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (error) {
-    console.error("DB connection error in middleware:", error);
-    return res.status(503).json({
-      success: false,
-      message: "Database connection failed, please try again",
-    });
-  }
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  },
 });
+app.io = io;
+io.on("connection", (socket) => {
+  socket.on("join-board", (boardId) => {
+    socket.join(boardId.toString());
+  });
+});
+app.use(express.json());
+connectDB();
 
 app.use("/api/auth", authRouter);
 app.use("/api/notes", noteRouter);
@@ -39,4 +40,7 @@ app.get("/", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-module.exports = app;
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

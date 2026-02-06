@@ -100,7 +100,6 @@ const inviteBoardMember = async (req, res) => {
       });
     }
     const invitedUser = await UserModel.findOne({ email: email.trim() });
-
     if (invitedUser) {
       const isAlreadyMember =
         board.ownerId.toString() === invitedUser._id.toString() ||

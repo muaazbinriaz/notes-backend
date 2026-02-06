@@ -19,7 +19,6 @@ const createList = async (req, res) => {
     const isAuthorized =
       board.ownerId.toString() === req.user._id.toString() ||
       board.members.includes(req.user._id);
-
     if (!isAuthorized) {
       return res
         .status(403)
@@ -31,6 +30,7 @@ const createList = async (req, res) => {
       boardId,
     });
     const savedList = await list.save();
+    req.app.io.to(boardId.toString()).emit("list-created", savedList);
     res.status(201).json({ success: true, data: savedList });
   } catch (err) {
     console.error("Create list error:", err);
@@ -81,6 +81,7 @@ const deleteList = async (req, res) => {
     }
     await Note.deleteMany({ listId: id });
     await List.deleteOne({ _id: id });
+    req.app.io.to(list.boardId.toString()).emit("list-deleted", { id });
     res.json({ success: true, message: "List and its notes deleted" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -95,10 +96,11 @@ const reorderList = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Lists must be an array" });
     }
+    let board;
     if (lists.length > 0) {
       const firstList = await List.findById(lists[0].id);
       if (firstList) {
-        const board = await boardModel.findById(firstList.boardId);
+        board = await boardModel.findById(firstList.boardId);
         const isAuthorized =
           board.ownerId.toString() === req.user._id.toString() ||
           board.members.includes(req.user._id);
@@ -115,6 +117,9 @@ const reorderList = async (req, res) => {
         List.updateOne({ _id: id }, { $set: { position } }),
       ),
     );
+    if (board) {
+      req.app.io.to(board._id.toString()).emit("lists-reordered", lists);
+    }
     res.json({ success: true });
   } catch (err) {
     console.error("Reorder error:", err);
